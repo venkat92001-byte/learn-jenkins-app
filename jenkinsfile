@@ -19,9 +19,6 @@ pipeline {
                 ls -la
                 '''
              }
-            steps {
-               sh 'echo "Hello from jenkins"'
-             }
         }
     }
 }
