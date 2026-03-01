@@ -23,7 +23,9 @@ pipeline {
         stage('TEST'){
             steps {
                 sh 'echo "test stage"'
-                sh 'grep  learn-jenkins-app/build/*.html'
+                sh 'test -f /build/index.html'
+                sh 'npm test'
+            
             }
             
         }
