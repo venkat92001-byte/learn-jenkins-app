@@ -53,13 +53,6 @@ pipeline {
                 }
             } 
         }
-    
-        post {
-            always{
-                junit 'jest-results/junit.xml'
-                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'playwrightHTML Report', reportTitles: '', useWrapperFileDirectly: true])
-            }
-        }
         stage('deploy'){
             agent{
                 docker{
@@ -70,6 +63,12 @@ pipeline {
             steps{
                 sh 'npm i netlify-cli@24.0.1'
                 sh 'node_modules/.bin/netlify --version'
+            }
+        }
+        post {
+            always{
+                junit 'jest-results/junit.xml'
+                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'playwrightHTML Report', reportTitles: '', useWrapperFileDirectly: true])
             }
         }
     }
