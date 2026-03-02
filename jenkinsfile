@@ -3,6 +3,7 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = 'c8fa8e9c-2dcf-4564-aa35-738e89cc1c5b'
         NETLIFY_AUTH_TOKEN = credentials('netlify-token')
+        
     }
 
     stages {
@@ -54,6 +55,12 @@ pipeline {
                         npx playwright test --reporter=html
                          '''
                     }
+                    post {
+                        always {
+                            junit 'jest-results/junit.xml'
+                            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'playwright local', reportTitles: '', useWrapperFileDirectly: true])
+                        }
+                    }
                 }
             } 
         }
@@ -72,11 +79,28 @@ pipeline {
                 sh 'node_modules/.bin/netlify deploy --dir=build --prod'
             }
         }
-    }
-    post {
-            always {
-                junit 'jest-results/junit.xml'
-                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'playwrightHTML Report', reportTitles: '', useWrapperFileDirectly: true])
+        stage('prod E2E') {
+            agent{
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0'
+                    reuseNode true
+                }
+            }
+            environment{
+                CI_ENVIRONMENT_URL = 'https://soft-malasada-3af2fa.netlify.app'
+            }
+            steps {
+                sh '''
+                    npx playwright test --reporter=html
+                    '''
+            }
+        
+            post {
+                always {
+                    junit 'jest-results/junit.xml'
+                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'playwright E2E Report', reportTitles: '', useWrapperFileDirectly: true])
+                }
             }
         }
+    }
 }
