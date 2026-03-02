@@ -17,12 +17,12 @@ pipeline {
                 npm ci
                 npm run build
                 ls -la
-                '''
+              '''
             }
         }
-        stage('run tests'){
+        stage('run tests') {
             parallel{
-                stage('TEST'){
+                stage('TEST') {
                     agent{
                         docker {
                             image 'node:alpine'
@@ -35,7 +35,7 @@ pipeline {
                         sh 'npm test'
                     }
                 }
-                stage('E2E'){
+                stage('E2E') {
                     agent{
                         docker {
                             image 'mcr.microsoft.com/playwright:v1.39.0'
@@ -54,19 +54,19 @@ pipeline {
             } 
         }
         stage('deploy'){
-            agent{
-                docker{
+            agent {
+                docker {
                     image 'node: alpine'
                     reuseNode true
                 }
             }
-            steps{
+            steps {
                 sh 'npm i netlify-cli@24.0.1'
                 sh 'node_modules/.bin/netlify --version'
             }
         }
         post {
-            always{
+            always {
                 junit 'jest-results/junit.xml'
                 publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'playwrightHTML Report', reportTitles: '', useWrapperFileDirectly: true])
             }
