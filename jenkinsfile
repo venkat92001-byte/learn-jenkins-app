@@ -64,7 +64,22 @@ pipeline {
                 }
             } 
         }
-        stage('deploy') {
+        stage('deploy stage') {
+            agent {
+                docker {
+                    image 'node:24.13.1'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'npm i netlify-cli@24.0.1'
+                sh 'node_modules/.bin/netlify --version'
+                sh  'echo "deploying to staging. Site ID: $NETLIFY_SITE_ID"'
+                sh 'node_modules/.bin/netlify status'
+                sh 'node_modules/.bin/netlify deploy --dir=build'
+            }
+        }
+        stage('deploy prod') {
             agent {
                 docker {
                     image 'node:24.13.1'
